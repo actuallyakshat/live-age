@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { RotateCcw } from "lucide-react";
 
@@ -31,21 +31,11 @@ function App() {
 function Onboarding() {
   const [name, setName] = useState("");
   const [dob, setDob] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [inputValue, setInputValue] = useState(dob);
+  const dateInput = useRef<HTMLInputElement>(null);
 
-  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (name.trim() === "") {
-      alert("Please enter your name");
-      return;
-    }
+  const validateDate = (dateString: string): boolean => {
+    if (!dateString) return false;
 
-    const userData: UserData = { user: { name, dob } };
-    localStorage.setItem("user", JSON.stringify(userData));
-    window.location.reload();
-  };
-
-  const validateAndSetDate = (dateString: string): boolean => {
     const selectedDate = new Date(dateString);
     const today = new Date();
     const minDate = new Date(
@@ -69,19 +59,28 @@ function Onboarding() {
       return false;
     }
 
-    setDob(dateString);
     return true;
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (name.trim() === "") {
+      alert("Please enter your name");
+      return;
+    }
+
+    // Validate the date before submitting
+    if (!validateDate(dob)) {
+      return;
+    }
+
+    const userData: UserData = { user: { name, dob } };
+    localStorage.setItem("user", JSON.stringify(userData));
+    window.location.reload();
   };
 
-  const handleDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const isValid = validateAndSetDate(e.target.value);
-    if (!isValid) {
-      setInputValue(dob);
-    }
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDob(e.target.value);
   };
 
   return (
@@ -100,9 +99,9 @@ function Onboarding() {
         />
         <input
           type="date"
-          value={inputValue}
+          value={dob}
           onChange={handleDateChange}
-          onBlur={handleDateBlur}
+          ref={dateInput}
         />
         <button type="submit">Submit</button>
       </form>
