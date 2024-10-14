@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import { RotateCcw } from "lucide-react";
 
 interface User {
   name: string;
@@ -151,7 +152,7 @@ function ResetButton() {
 
   return (
     <button onClick={resetUser}>
-      <img src="/reload.svg" alt="Reset" />
+      <RotateCcw />
     </button>
   );
 }
